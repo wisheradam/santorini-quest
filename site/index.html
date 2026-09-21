@@ -3,96 +3,376 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Create, print, and share your own Santorini-inspired quests."
-    />
+    <meta name="description" content="Create, print, save, and share a personal Santorini quest." />
     <title>Santorini Quest</title>
     <style>
       :root {
         color-scheme: light;
-        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-        background: #f7f1e8;
-        color: #17324d;
+        --navy: #002349;
+        --blue: #0038ff;
+        --sky: #e9f2ff;
+        --ink: #191c1f;
+        --muted: #657287;
+        --white: #fff;
+        --radius: 28px;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
       * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; color: var(--ink); background: #f7f9fc; }
+      button, input { font: inherit; }
+      button, a { -webkit-tap-highlight-color: transparent; }
+      a { color: inherit; }
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background:
-          radial-gradient(circle at 20% 15%, rgba(255,255,255,.95), transparent 28rem),
-          linear-gradient(145deg, #f8f1e7 0%, #d9edf3 100%);
+      .shell { width: min(1160px, calc(100% - 32px)); margin: 0 auto; }
+      .site-header { position: relative; z-index: 2; background: var(--navy); }
+      .nav { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 24px; color: #fff; }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 850; letter-spacing: -.02em; }
+      .brand-mark { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--blue); font-size: 21px; }
+      .nav-links { display: flex; align-items: center; gap: 28px; }
+      .nav-links a { text-decoration: none; font-weight: 650; }
+      .nav-cta, .button { border: 0; border-radius: 12px; cursor: pointer; font-weight: 800; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+      .nav-cta { padding: 12px 18px; background: #fff; color: var(--navy); }
+      .button { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 24px; background: var(--blue); color: #fff; box-shadow: 0 12px 26px rgba(0,56,255,.22); }
+      .button:hover, .nav-cta:hover { transform: translateY(-2px); }
+      .button.secondary { background: #fff; color: var(--navy); border: 1px solid #dce4ef; box-shadow: none; }
+
+      .hero { position: relative; overflow: hidden; min-height: 640px; display: grid; align-items: center; color: #fff; background: var(--navy); }
+      .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+      .hero::before { width: 430px; height: 430px; right: -110px; top: -170px; background: #0038ff; opacity: .78; }
+      .hero::after { width: 250px; height: 250px; left: 42%; bottom: -160px; border: 54px solid #fff; opacity: .1; }
+      .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1.05fr .95fr; gap: 64px; align-items: center; padding: 70px 0 90px; }
+      .kicker { margin: 0 0 18px; color: #9cb7ff; text-transform: uppercase; letter-spacing: .17em; font-size: 13px; font-weight: 850; }
+      h1 { margin: 0; max-width: 720px; font-size: clamp(48px, 7vw, 86px); line-height: .96; letter-spacing: -.055em; }
+      .hero-copy { margin: 28px 0 34px; max-width: 590px; color: #d8e4f4; font-size: clamp(18px, 2vw, 22px); line-height: 1.6; }
+      .hero-card { position: relative; min-height: 430px; padding: 34px; border-radius: 36px; color: var(--navy); background: #fff; box-shadow: 0 35px 90px rgba(0,0,0,.28); transform: rotate(2deg); }
+      .hero-card::before { content: ""; position: absolute; inset: 18px; border: 2px dashed #b8c7e0; border-radius: 25px; }
+      .hero-card-inner { position: relative; z-index: 1; min-height: 360px; display: flex; flex-direction: column; justify-content: space-between; padding: 26px; }
+      .stamp { align-self: flex-end; width: 84px; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 900; transform: rotate(9deg); }
+      .hero-card h2 { margin: 0; font-size: clamp(34px, 5vw, 58px); line-height: 1; letter-spacing: -.045em; }
+      .route { display: flex; align-items: center; gap: 12px; color: var(--muted); font-weight: 750; }
+      .route-line { flex: 1; height: 2px; background: repeating-linear-gradient(90deg, var(--blue) 0 9px, transparent 9px 15px); }
+
+      .section { padding: 110px 0; }
+      .section-heading { max-width: 720px; margin-bottom: 44px; }
+      .section-heading h2 { margin: 0; color: var(--navy); font-size: clamp(40px, 6vw, 68px); line-height: 1; letter-spacing: -.045em; }
+      .section-heading p { margin: 18px 0 0; color: var(--muted); font-size: 19px; line-height: 1.7; }
+      .create-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 30px; }
+      .info-card, .form-card { border-radius: var(--radius); }
+      .info-card { padding: 42px; color: #fff; background: var(--blue); }
+      .info-card h3 { margin: 0; font-size: 32px; line-height: 1.1; }
+      .steps { display: grid; gap: 22px; margin-top: 34px; }
+      .step { display: grid; grid-template-columns: 38px 1fr; gap: 14px; align-items: start; }
+      .step-number { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: var(--blue); background: #fff; font-weight: 900; }
+      .step p { margin: 4px 0 0; color: #dbe4ff; line-height: 1.5; }
+      .form-card { padding: clamp(28px, 5vw, 52px); background: #fff; box-shadow: 0 24px 70px rgba(0,35,73,.1); }
+      .form-card h3 { margin: 0 0 30px; color: var(--navy); font-size: 34px; }
+      .field { display: grid; gap: 9px; margin-bottom: 22px; }
+      label { color: var(--navy); font-weight: 800; }
+      input { width: 100%; min-height: 56px; border: 1px solid #ccd7e6; border-radius: 13px; padding: 0 16px; color: var(--ink); background: #fbfcfe; outline: none; }
+      input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,56,255,.1); }
+      .hint { margin: 0; color: var(--muted); font-size: 14px; }
+      .form-card .button { width: 100%; margin-top: 8px; }
+      .message { min-height: 24px; margin: 16px 0 0; color: #b42318; font-weight: 650; }
+
+      .quest-section { display: none; padding: 70px 0 110px; }
+      .quest-section.visible { display: block; }
+      .quest-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 30px; align-items: stretch; }
+      .quest-card { position: relative; overflow: hidden; min-height: 520px; padding: clamp(34px, 6vw, 68px); border-radius: 34px; color: #fff; background: linear-gradient(145deg, #002349, #0038ff); box-shadow: 0 28px 80px rgba(0,35,73,.2); }
+      .quest-card::after { content: ""; position: absolute; width: 360px; height: 360px; right: -190px; bottom: -190px; border: 52px solid #fff; border-radius: 50%; opacity: .14; }
+      .quest-card-content { position: relative; z-index: 1; }
+      .quest-label { margin: 0 0 24px; color: #b8c8ff; text-transform: uppercase; letter-spacing: .18em; font-weight: 850; font-size: 13px; }
+      .quest-name { margin: 0; font-size: clamp(48px, 8vw, 88px); line-height: .95; letter-spacing: -.055em; overflow-wrap: anywhere; }
+      .quest-date { margin: 24px 0 0; color: #dbe4ff; font-size: 20px; }
+      .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 48px; }
+      .time-box { padding: 18px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; text-align: center; background: rgba(255,255,255,.1); backdrop-filter: blur(10px); }
+      .time-value { display: block; font-size: clamp(28px, 5vw, 46px); font-weight: 900; }
+      .time-label { color: #cdd9f4; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+      .quest-actions { padding: 34px; display: flex; flex-direction: column; gap: 12px; border-radius: var(--radius); background: #fff; box-shadow: 0 24px 70px rgba(0,35,73,.1); }
+      .quest-actions h3 { margin: 0 0 8px; color: var(--navy); font-size: 28px; }
+      .quest-actions p { margin: 0 0 14px; color: var(--muted); line-height: 1.6; }
+      .share-url { width: 100%; min-height: 48px; padding: 12px; overflow-wrap: anywhere; border-radius: 10px; background: var(--sky); color: var(--navy); font-size: 13px; }
+
+      .powered { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 32px 16px 42px; color: var(--muted); background: #fff; }
+      .powered a { display: inline-flex; align-items: center; gap: 9px; color: var(--navy); font-weight: 850; text-decoration: none; }
+      .powered img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
+
+      .expired { text-align: center; padding: 80px 24px; border-radius: var(--radius); background: #fff; box-shadow: 0 24px 70px rgba(0,35,73,.1); }
+      .expired h2 { margin: 0; color: var(--navy); font-size: 46px; }
+      .expired p { color: var(--muted); }
+
+      @media (max-width: 820px) {
+        .nav-links a:not(.nav-cta) { display: none; }
+        .hero-grid, .create-grid, .quest-layout { grid-template-columns: 1fr; }
+        .hero { min-height: auto; }
+        .hero-grid { gap: 48px; padding-top: 54px; }
+        .hero-card { min-height: 340px; transform: none; }
+        .hero-card-inner { min-height: 280px; }
+        .section { padding: 78px 0; }
       }
 
-      main {
-        width: min(760px, calc(100% - 2rem));
-        padding: clamp(2rem, 7vw, 5rem);
-        text-align: center;
-        background: rgba(255,255,255,.76);
-        border: 1px solid rgba(18,108,142,.14);
-        border-radius: 2rem;
-        box-shadow: 0 24px 80px rgba(23,50,77,.12);
-        backdrop-filter: blur(16px);
+      @media (max-width: 520px) {
+        .shell { width: min(100% - 22px, 1160px); }
+        .nav { min-height: 70px; }
+        .brand span:last-child { font-size: 15px; }
+        .nav-cta { padding: 10px 12px; font-size: 14px; }
+        .hero-card, .form-card, .info-card, .quest-card, .quest-actions { border-radius: 22px; }
+        .countdown { grid-template-columns: repeat(2, 1fr); }
       }
 
-      .eyebrow {
-        margin: 0 0 1rem;
-        color: #ba6b3d;
-        font-weight: 750;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-      }
-
-      h1 {
-        margin: 0;
-        color: #126c8e;
-        font-family: Georgia, serif;
-        font-size: clamp(3rem, 10vw, 6.5rem);
-        font-weight: 500;
-        line-height: .9;
-      }
-
-      p {
-        max-width: 38rem;
-        margin: 1.75rem auto 0;
-        font-size: clamp(1rem, 2.4vw, 1.25rem);
-        line-height: 1.7;
-      }
-
-      .features {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: .65rem;
-        margin-top: 2rem;
-      }
-
-      .features span {
-        padding: .65rem 1rem;
-        border-radius: 999px;
-        background: #fff;
-        box-shadow: 0 5px 18px rgba(23,50,77,.08);
+      @media print {
+        .site-header, .hero, #create, .quest-actions, .powered { display: none !important; }
+        .quest-section { display: block !important; padding: 0; }
+        .quest-layout { display: block; }
+        .quest-card { min-height: 100vh; border-radius: 0; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
       }
     </style>
   </head>
   <body>
-    <main>
-      <p class="eyebrow">Your adventure is taking shape</p>
-      <h1>Santorini Quest</h1>
-      <p>
-        Create a personal quest, print it or save it as an image, and share a
-        countdown for the adventure ahead.
-      </p>
-      <div class="features" aria-label="Planned features">
-        <span>Create</span>
-        <span>Print</span>
-        <span>Save</span>
-        <span>Count down</span>
-      </div>
+    <header class="site-header">
+      <nav class="nav shell" aria-label="Main navigation">
+        <a class="brand" href="/">
+          <span class="brand-mark">S</span>
+          <span>Santorini Quest</span>
+        </a>
+        <div class="nav-links">
+          <a href="#create">How it works</a>
+          <a class="nav-cta" href="#create">Create your quest</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="homeView">
+      <section class="hero">
+        <div class="hero-grid shell">
+          <div>
+            <p class="kicker">A personal adventure, made by you</p>
+            <h1>Turn anticipation into a quest.</h1>
+            <p class="hero-copy">Create a beautiful personal quest, print it, save it as an image, and share a live countdown to the big day.</p>
+            <a class="button" href="#create">Create Your Own Quest</a>
+          </div>
+          <div class="hero-card" aria-hidden="true">
+            <div class="hero-card-inner">
+              <div class="stamp">GO</div>
+              <div>
+                <p class="kicker">Destination: Santorini</p>
+                <h2>Your next story starts here.</h2>
+              </div>
+              <div class="route"><span>Home</span><span class="route-line"></span><span>Adventure</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="create">
+        <div class="shell">
+          <div class="section-heading">
+            <p class="kicker">Make it personal</p>
+            <h2>Create Your Own Quest</h2>
+            <p>Enter the participant’s name and choose the day of the adventure. The shared page remains active through that date and is then removed automatically.</p>
+          </div>
+          <div class="create-grid">
+            <aside class="info-card">
+              <h3>Ready in three simple steps</h3>
+              <div class="steps">
+                <div class="step"><span class="step-number">1</span><p>Add the participant’s first and last name.</p></div>
+                <div class="step"><span class="step-number">2</span><p>Choose a date up to three months from today.</p></div>
+                <div class="step"><span class="step-number">3</span><p>Share, print, or save the generated quest as an image.</p></div>
+              </div>
+            </aside>
+            <form class="form-card" id="questForm">
+              <h3>Quest details</h3>
+              <div class="field">
+                <label for="questName">Quest name</label>
+                <input id="questName" name="name" type="text" maxlength="100" autocomplete="name" placeholder="For example, Alex Morgan" required />
+              </div>
+              <div class="field">
+                <label for="questDate">Adventure date</label>
+                <input id="questDate" name="date" type="date" required />
+                <p class="hint">Select any date from today through the next three months.</p>
+              </div>
+              <button class="button" type="submit">Generate my quest</button>
+              <p class="message" id="formMessage" role="status"></p>
+            </form>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <section class="quest-section" id="questView" aria-live="polite">
+      <div class="shell" id="questContent">
+        <div class="quest-layout">
+          <article class="quest-card" id="questCard">
+            <div class="quest-card-content">
+              <p class="quest-label">The countdown is on</p>
+              <h2 class="quest-name" id="displayName"></h2>
+              <p class="quest-date" id="displayDate"></p>
+              <div class="countdown" aria-label="Time remaining">
+                <div class="time-box"><span class="time-value" id="days">0</span><span class="time-label">Days</span></div>
+                <div class="time-box"><span class="time-value" id="hours">0</span><span class="time-label">Hours</span></div>
+                <div class="time-box"><span class="time-value" id="minutes">0</span><span class="time-label">Minutes</span></div>
+                <div class="time-box"><span class="time-value" id="seconds">0</span><span class="time-label">Seconds</span></div>
+              </div>
+            </div>
+          </article>
+          <aside class="quest-actions">
+            <h3>Your quest is ready</h3>
+            <p>Use the link below to share this countdown. It remains available through the selected date.</p>
+            <div class="share-url" id="shareUrl"></div>
+            <button class="button" id="copyButton" type="button">Copy share link</button>
+            <button class="button secondary" id="printButton" type="button">Print quest</button>
+            <button class="button secondary" id="saveButton" type="button">Save as image</button>
+            <a class="button secondary" href="/">Create another quest</a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <footer class="powered">
+      <span>Powered by</span>
+      <a href="https://check2go.co/" target="_blank" rel="noopener noreferrer">
+        <img src="https://check2go.co/wp-content/uploads/2025/07/cropped-logo-150x150-optimized.png" alt="Check2Go logo" />
+        <span>Check2Go</span>
+      </a>
+    </footer>
+
+    <script>
+      const API_URL = "https://pbvoeysg9a.execute-api.us-east-1.amazonaws.com";
+      const form = document.querySelector("#questForm");
+      const dateInput = document.querySelector("#questDate");
+      const formMessage = document.querySelector("#formMessage");
+      const homeView = document.querySelector("#homeView");
+      const questView = document.querySelector("#questView");
+      let activeQuest;
+      let countdownTimer;
+
+      const toDateValue = (value) => {
+        const year = value.getFullYear();
+        const month = String(value.getMonth() + 1).padStart(2, "0");
+        const day = String(value.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const today = new Date();
+      const maximumDate = new Date(today.getFullYear(), today.getMonth() + 3, today.getDate());
+      dateInput.min = toDateValue(today);
+      dateInput.max = toDateValue(maximumDate);
+      dateInput.value = toDateValue(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7));
+
+      const readableDate = (dateText) => new Intl.DateTimeFormat("en", {
+        dateStyle: "long",
+        timeZone: "UTC"
+      }).format(new Date(`${dateText}T12:00:00Z`));
+
+      const showExpired = (message = "This quest has reached its destination and is no longer available.") => {
+        clearInterval(countdownTimer);
+        homeView.hidden = true;
+        questView.classList.add("visible");
+        document.querySelector("#questContent").innerHTML = `<div class="expired"><h2>Quest complete</h2><p>${message}</p><a class="button" href="/">Create a new quest</a></div>`;
+      };
+
+      const updateCountdown = () => {
+        if (!activeQuest) return;
+        const remaining = Number(activeQuest.expiresAt) * 1000 - Date.now();
+        if (remaining <= 0) {
+          showExpired();
+          return;
+        }
+        document.querySelector("#days").textContent = Math.floor(remaining / 86400000);
+        document.querySelector("#hours").textContent = Math.floor(remaining / 3600000) % 24;
+        document.querySelector("#minutes").textContent = Math.floor(remaining / 60000) % 60;
+        document.querySelector("#seconds").textContent = Math.floor(remaining / 1000) % 60;
+      };
+
+      const displayQuest = (quest, url = window.location.href) => {
+        activeQuest = quest;
+        homeView.hidden = true;
+        questView.classList.add("visible");
+        document.querySelector("#displayName").textContent = quest.name;
+        document.querySelector("#displayDate").textContent = `Adventure date: ${readableDate(quest.date)}`;
+        document.querySelector("#shareUrl").textContent = url;
+        updateCountdown();
+        countdownTimer = window.setInterval(updateCountdown, 1000);
+        window.scrollTo({ top: 0 });
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        formMessage.textContent = "Creating your quest...";
+        const submitButton = form.querySelector("button[type='submit']");
+        submitButton.disabled = true;
+        try {
+          const response = await fetch(`${API_URL}/quests`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: document.querySelector("#questName").value,
+              date: dateInput.value
+            })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || "Could not create the quest.");
+          history.replaceState({}, "", `/?quest=${result.quest.id}`);
+          displayQuest(result.quest, result.url);
+        } catch (error) {
+          formMessage.textContent = error.message;
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      document.querySelector("#copyButton").addEventListener("click", async (event) => {
+        await navigator.clipboard.writeText(document.querySelector("#shareUrl").textContent);
+        event.currentTarget.textContent = "Link copied";
+      });
+
+      document.querySelector("#printButton").addEventListener("click", () => window.print());
+
+      document.querySelector("#saveButton").addEventListener("click", () => {
+        if (!activeQuest) return;
+        const canvas = document.createElement("canvas");
+        canvas.width = 1400;
+        canvas.height = 900;
+        const context = canvas.getContext("2d");
+        const gradient = context.createLinearGradient(0, 0, 1400, 900);
+        gradient.addColorStop(0, "#002349");
+        gradient.addColorStop(1, "#0038ff");
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, 1400, 900);
+        context.strokeStyle = "rgba(255,255,255,.35)";
+        context.lineWidth = 4;
+        context.setLineDash([18, 14]);
+        context.strokeRect(55, 55, 1290, 790);
+        context.fillStyle = "#b8c8ff";
+        context.font = "700 28px Arial";
+        context.fillText("SANTORINI QUEST", 110, 150);
+        context.fillStyle = "#ffffff";
+        context.font = "700 82px Arial";
+        context.fillText(activeQuest.name.slice(0, 26), 110, 330);
+        context.font = "400 38px Arial";
+        context.fillText(`Adventure date: ${readableDate(activeQuest.date)}`, 110, 420);
+        context.font = "700 52px Arial";
+        context.fillText(`${document.querySelector("#days").textContent} days to go`, 110, 570);
+        context.font = "400 26px Arial";
+        context.fillStyle = "#dbe4ff";
+        context.fillText("Powered by Check2Go", 110, 770);
+        const link = document.createElement("a");
+        link.download = `santorini-quest-${activeQuest.id}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+
+      const questId = new URLSearchParams(window.location.search).get("quest");
+      if (questId) {
+        fetch(`${API_URL}/quests/${encodeURIComponent(questId)}`)
+          .then(async (response) => {
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "Quest not found.");
+            displayQuest(result.quest, window.location.href);
+          })
+          .catch((error) => showExpired(error.message));
+      }
+    </script>
   </body>
 </html>
