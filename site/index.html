@@ -74,6 +74,29 @@
       input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,56,255,.1); }
       .hint { margin: 0; color: var(--muted); font-size: 14px; }
       .form-card .button { width: 100%; margin-top: 8px; }
+
+      .date-time-row { display: grid; grid-template-columns: 1.35fr .85fr; gap: 14px; }
+      .duration-card { display: flex; align-items: center; gap: 14px; min-height: 70px; margin: 4px 0 22px; padding: 15px 17px; border-radius: 15px; background: var(--sky); color: var(--navy); }
+      .duration-icon { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--blue); font-weight: 900; }
+      .duration-card strong { display: block; font-size: 18px; }
+      .duration-card span:last-child { color: var(--muted); font-size: 14px; }
+      .stepper { width: fit-content; display: grid; grid-template-columns: 48px 64px 48px; align-items: center; border: 1px solid #ccd7e6; border-radius: 14px; overflow: hidden; background: #fbfcfe; }
+      .stepper button { min-width: 48px; min-height: 48px; border: 0; color: var(--navy); background: transparent; font-size: 25px; cursor: pointer; }
+      .stepper button:hover { background: var(--sky); }
+      .stepper output { display: grid; place-items: center; min-height: 48px; border-inline: 1px solid #dce4ef; color: var(--navy); font-weight: 900; }
+      .style-group { margin: 30px 0 24px; padding: 0; border: 0; }
+      .style-group legend { margin-bottom: 8px; color: var(--navy); font-size: 19px; font-weight: 850; }
+      .style-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+      .style-chip { min-height: 92px; padding: 15px; border: 1px solid #ccd7e6; border-radius: 15px; color: var(--navy); background: #fbfcfe; text-align: left; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+      .style-chip:hover { border-color: #9bb0ce; transform: translateY(-1px); }
+      .style-chip[aria-pressed="true"] { border-color: var(--blue); background: #eef3ff; box-shadow: 0 0 0 3px rgba(0,56,255,.08); }
+      .style-chip strong { display: block; line-height: 1.25; }
+      .style-chip span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+      .quest-meta { display: grid; gap: 8px; margin-top: 24px; }
+      .quest-meta p { margin: 0; color: #dbe4ff; font-size: 17px; line-height: 1.45; }
+      .selected-styles { margin-top: 16px; color: #cdd9f4; font-size: 14px; line-height: 1.5; }
+      .button:disabled { opacity: .55; cursor: wait; transform: none; }
+      button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #78a0ff; outline-offset: 3px; }
       .message { min-height: 24px; margin: 16px 0 0; color: #b42318; font-weight: 650; }
 
       .quest-section { display: none; padding: 70px 0 110px; }
@@ -105,6 +128,7 @@
       @media (max-width: 820px) {
         .nav-links a:not(.nav-cta) { display: none; }
         .hero-grid, .create-grid, .quest-layout { grid-template-columns: 1fr; }
+        .style-grid { grid-template-columns: 1fr; }
         .hero { min-height: auto; }
         .hero-grid { gap: 48px; padding-top: 54px; }
         .hero-card { min-height: 340px; transform: none; }
@@ -119,6 +143,8 @@
         .nav-cta { padding: 10px 12px; font-size: 14px; }
         .hero-card, .form-card, .info-card, .quest-card, .quest-actions { border-radius: 22px; }
         .countdown { grid-template-columns: repeat(2, 1fr); }
+        .date-time-row { grid-template-columns: 1fr; gap: 0; }
+        .style-chip { min-height: 88px; }
       }
 
       @media print {
@@ -170,30 +196,76 @@
           <div class="section-heading">
             <p class="kicker">Make it personal</p>
             <h2>Create Your Own Travel Adventure</h2>
-            <p>Enter the participant’s name and choose the day of the adventure. The shared page remains active through that date and is then removed automatically.</p>
+            <p>Add the trip dates, travelers, and preferred travel styles. Your shared adventure stays available until the selected departure time.</p>
           </div>
           <div class="create-grid">
             <aside class="info-card">
-              <h3>Ready in three simple steps</h3>
+              <h3>Personalized in three simple steps</h3>
               <div class="steps">
                 <div class="step"><span class="step-number">1</span><p>Add the participant’s first and last name.</p></div>
-                <div class="step"><span class="step-number">2</span><p>Choose a date up to three months from today.</p></div>
-                <div class="step"><span class="step-number">3</span><p>Share, print, or save the generated Travel Adventure as an image.</p></div>
+                <div class="step"><span class="step-number">2</span><p>Add arrival, departure, travelers, and the experiences you enjoy.</p></div>
+                <div class="step"><span class="step-number">3</span><p>Generate a personalized adventure to share, print, or save.</p></div>
               </div>
             </aside>
             <form class="form-card" id="questForm">
-              <h3>Travel Adventure Details</h3>
+              <h3>Quest Details</h3>
               <div class="field">
-                <label for="questName">Travel Adventure Name</label>
-                <input id="questName" name="name" type="text" maxlength="100" autocomplete="name" placeholder="For example, Alex Morgan" required />
+                <label for="questName">Quest name</label>
+                <input id="questName" name="name" type="text" maxlength="100" autocomplete="name" placeholder="Alex Morgan" required />
+                <p class="hint">First and last name of the main participant.</p>
+              </div>
+              <div class="date-time-row">
+                <div class="field">
+                  <label for="arrivalDate">Arrival date</label>
+                  <input id="arrivalDate" name="arrivalDate" type="date" required />
+                </div>
+                <div class="field">
+                  <label for="arrivalTime">Arrival time</label>
+                  <input id="arrivalTime" name="arrivalTime" type="time" value="15:00" required />
+                </div>
+              </div>
+              <div class="date-time-row">
+                <div class="field">
+                  <label for="departureDate">Departure date</label>
+                  <input id="departureDate" name="departureDate" type="date" required />
+                </div>
+                <div class="field">
+                  <label for="departureTime">Departure time</label>
+                  <input id="departureTime" name="departureTime" type="time" value="11:00" required />
+                </div>
+              </div>
+              <div class="duration-card" aria-live="polite">
+                <span class="duration-icon" aria-hidden="true">D</span>
+                <div><strong id="tripDuration">7 days in Santorini</strong><span>Calculated automatically from your trip dates</span></div>
               </div>
               <div class="field">
-                <label for="questDate">Adventure date</label>
-                <input id="questDate" name="date" type="date" required />
-                <p class="hint">Select any date from today through the next three months.</p>
+                <label id="travelersLabel">Number of travelers</label>
+                <div class="stepper" role="group" aria-labelledby="travelersLabel">
+                  <button type="button" id="decreaseTravelers" aria-label="Decrease number of travelers">−</button>
+                  <output id="travelerCount" aria-live="polite">2</output>
+                  <button type="button" id="increaseTravelers" aria-label="Increase number of travelers">+</button>
+                </div>
               </div>
-              <button class="button" type="submit">Generate My Travel Adventure</button>
-              <p class="message" id="formMessage" role="status"></p>
+              <fieldset class="style-group">
+                <legend>What kind of Santorini experience do you want?</legend>
+                <p class="hint">Choose one or more. Your selections will shape your recommendations.</p>
+                <div class="style-grid" id="styleGrid">
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Active & Adventure"><strong>Active &amp; Adventure</strong><span>Hiking, volcano trips, kayaking, and outdoor exploration.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Beach & Relaxation"><strong>Beach &amp; Relaxation</strong><span>Beaches, swimming, slow days, and relaxing by the sea.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Sightseeing & Culture"><strong>Sightseeing &amp; Culture</strong><span>Villages, museums, archaeology, churches, history, and culture.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Instagram & Photography"><strong>Instagram &amp; Photography</strong><span>Viewpoints, sunsets, blue domes, and impressive photo spots.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Romantic"><strong>Romantic</strong><span>Sunsets, romantic dinners, and scenic experiences for couples.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Wedding & Honeymoon"><strong>Wedding &amp; Honeymoon</strong><span>Special moments, photography, romantic locations, and celebrations.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Family"><strong>Family</strong><span>Child-friendly attractions, easier routes, and comfortable travel.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Food & Wine"><strong>Food &amp; Wine</strong><span>Local restaurants, wineries, tastings, and traditional food.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Nightlife"><strong>Nightlife</strong><span>Bars, cocktails, clubs, and evening entertainment.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Wellness & Slow Travel"><strong>Wellness &amp; Slow Travel</strong><span>Spa, yoga, quiet places, relaxing walks, and slower days.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Luxury"><strong>Luxury</strong><span>Premium dining, private tours, yachts, and exclusive experiences.</span></button>
+                  <button class="style-chip" type="button" aria-pressed="false" data-style="Local & Authentic"><strong>Local &amp; Authentic</strong><span>Traditional villages, local businesses, and less-touristy places.</span></button>
+                </div>
+              </fieldset>
+              <button class="button" type="submit">Generate my quest</button>
+              <p class="message" id="formMessage" role="status" aria-live="polite"></p>
             </form>
           </div>
         </div>
@@ -207,7 +279,7 @@
             <div class="quest-card-content">
               <p class="quest-label">The countdown is on</p>
               <h2 class="quest-name" id="displayName"></h2>
-              <p class="quest-date" id="displayDate"></p>
+              <div class="quest-meta"><p id="displayDates"></p><p id="displayTripDetails"></p></div><p class="selected-styles" id="displayStyles"></p>
               <div class="countdown" aria-label="Time remaining">
                 <div class="time-box"><span class="time-value" id="days">0</span><span class="time-label">Days</span></div>
                 <div class="time-box"><span class="time-value" id="hours">0</span><span class="time-label">Hours</span></div>
@@ -240,10 +312,15 @@
     <script>
       const API_URL = "https://pbvoeysg9a.execute-api.us-east-1.amazonaws.com";
       const form = document.querySelector("#questForm");
-      const dateInput = document.querySelector("#questDate");
+      const arrivalDate = document.querySelector("#arrivalDate");
+      const arrivalTime = document.querySelector("#arrivalTime");
+      const departureDate = document.querySelector("#departureDate");
+      const departureTime = document.querySelector("#departureTime");
       const formMessage = document.querySelector("#formMessage");
       const homeView = document.querySelector("#homeView");
       const questView = document.querySelector("#questView");
+      const styleButtons = [...document.querySelectorAll(".style-chip")];
+      let travelers = 2;
       let activeQuest;
       let countdownTimer;
 
@@ -254,28 +331,67 @@
         return `${year}-${month}-${day}`;
       };
 
+      const toLocalDateTime = (dateValue, timeValue) => new Date(`${dateValue}T${timeValue}:00`);
+      const readableDateTime = (dateText, timeText) => new Intl.DateTimeFormat("en", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(toLocalDateTime(dateText, timeText));
+
       const today = new Date();
       const maximumDate = new Date(today.getFullYear(), today.getMonth() + 3, today.getDate());
-      dateInput.min = toDateValue(today);
-      dateInput.max = toDateValue(maximumDate);
-      dateInput.value = toDateValue(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7));
+      arrivalDate.min = departureDate.min = toDateValue(today);
+      arrivalDate.max = departureDate.max = toDateValue(maximumDate);
+      arrivalDate.value = toDateValue(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7));
+      departureDate.value = toDateValue(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14));
 
-      const humanizeApiMessage = (message = "") => {
-        const messages = {
-          "Quest name must contain 1 to 100 characters.": "Travel Adventure name must contain 1 to 100 characters.",
-          "The quest date cannot be in the past.": "The adventure date cannot be in the past.",
-          "The quest date must be within three months.": "The adventure date must be within three months.",
-          "Could not create a unique quest. Please retry.": "Could not create a unique Travel Adventure. Please retry.",
-          "Quest not found.": "Travel Adventure not found.",
-          "This quest has expired.": "This Travel Adventure has expired."
-        };
-        return messages[message] || message;
+      const updateDuration = () => {
+        departureDate.min = arrivalDate.value || toDateValue(today);
+        departureDate.setCustomValidity("");
+        departureTime.setCustomValidity("");
+        if (!arrivalDate.value || !arrivalTime.value || !departureDate.value || !departureTime.value) return false;
+        const arrival = toLocalDateTime(arrivalDate.value, arrivalTime.value);
+        const departure = toLocalDateTime(departureDate.value, departureTime.value);
+        if (departure <= arrival) {
+          const message = "Departure must be later than arrival.";
+          departureDate.setCustomValidity(message);
+          departureTime.setCustomValidity(message);
+          document.querySelector("#tripDuration").textContent = message;
+          return false;
+        }
+        const days = Math.max(1, Math.round((new Date(departureDate.value) - new Date(arrivalDate.value)) / 86400000));
+        document.querySelector("#tripDuration").textContent = `${days} ${days === 1 ? "day" : "days"} in Santorini`;
+        return true;
       };
 
-      const readableDate = (dateText) => new Intl.DateTimeFormat("en", {
-        dateStyle: "long",
-        timeZone: "UTC"
-      }).format(new Date(`${dateText}T12:00:00Z`));
+      [arrivalDate, arrivalTime, departureDate, departureTime].forEach((input) => input.addEventListener("change", updateDuration));
+      updateDuration();
+
+      const renderTravelers = () => {
+        document.querySelector("#travelerCount").textContent = travelers;
+        document.querySelector("#decreaseTravelers").disabled = travelers === 1;
+      };
+      document.querySelector("#decreaseTravelers").addEventListener("click", () => {
+        travelers = Math.max(1, travelers - 1);
+        renderTravelers();
+      });
+      document.querySelector("#increaseTravelers").addEventListener("click", () => {
+        travelers = Math.min(50, travelers + 1);
+        renderTravelers();
+      });
+      renderTravelers();
+
+      styleButtons.forEach((button) => button.addEventListener("click", () => {
+        button.setAttribute("aria-pressed", String(button.getAttribute("aria-pressed") !== "true"));
+        formMessage.textContent = "";
+      }));
+      const selectedStyles = () => styleButtons
+        .filter((button) => button.getAttribute("aria-pressed") === "true")
+        .map((button) => button.dataset.style);
+
+      const humanizeApiMessage = (message = "") => ({
+        "Quest not found.": "Travel Adventure not found.",
+        "This quest has expired.": "This Travel Adventure has expired."
+      }[message] || message);
 
       const showExpired = (message = "This Travel Adventure has reached its destination and is no longer available.") => {
         clearInterval(countdownTimer);
@@ -286,11 +402,16 @@
 
       const updateCountdown = () => {
         if (!activeQuest) return;
-        const remaining = Number(activeQuest.expiresAt) * 1000 - Date.now();
-        if (remaining <= 0) {
+        const now = Date.now();
+        const arrivalAt = Number(activeQuest.arrivalAt || activeQuest.expiresAt) * 1000;
+        const expiresAt = Number(activeQuest.expiresAt) * 1000;
+        if (expiresAt <= now) {
           showExpired();
           return;
         }
+        const beforeArrival = now < arrivalAt;
+        document.querySelector(".quest-label").textContent = beforeArrival ? "Your Santorini adventure starts in" : "Your Santorini adventure is underway";
+        const remaining = (beforeArrival ? arrivalAt : expiresAt) - now;
         document.querySelector("#days").textContent = Math.floor(remaining / 86400000);
         document.querySelector("#hours").textContent = Math.floor(remaining / 3600000) % 24;
         document.querySelector("#minutes").textContent = Math.floor(remaining / 60000) % 60;
@@ -302,7 +423,15 @@
         homeView.hidden = true;
         questView.classList.add("visible");
         document.querySelector("#displayName").textContent = quest.name;
-        document.querySelector("#displayDate").textContent = `Adventure date: ${readableDate(quest.date)}`;
+        if (quest.arrivalDate) {
+          document.querySelector("#displayDates").textContent = `${readableDateTime(quest.arrivalDate, quest.arrivalTime)} — ${readableDateTime(quest.departureDate, quest.departureTime)}`;
+          document.querySelector("#displayTripDetails").textContent = `${quest.numberDays} ${quest.numberDays === 1 ? "day" : "days"} in Santorini · ${quest.travelers} ${quest.travelers === 1 ? "traveler" : "travelers"}`;
+          document.querySelector("#displayStyles").textContent = quest.styles.join(" · ");
+        } else {
+          document.querySelector("#displayDates").textContent = `Adventure date: ${quest.date}`;
+          document.querySelector("#displayTripDetails").textContent = "";
+          document.querySelector("#displayStyles").textContent = "";
+        }
         document.querySelector("#shareUrl").textContent = url;
         updateCountdown();
         countdownTimer = window.setInterval(updateCountdown, 1000);
@@ -311,6 +440,17 @@
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
+        formMessage.textContent = "";
+        if (!updateDuration()) {
+          form.reportValidity();
+          return;
+        }
+        const styles = selectedStyles();
+        if (!styles.length) {
+          formMessage.textContent = "Select at least one travel style.";
+          styleButtons[0].focus();
+          return;
+        }
         formMessage.textContent = "Creating your Travel Adventure...";
         const submitButton = form.querySelector("button[type='submit']");
         submitButton.disabled = true;
@@ -320,7 +460,12 @@
             headers: { "content-type": "application/json" },
             body: JSON.stringify({
               name: document.querySelector("#questName").value,
-              date: dateInput.value
+              arrivalDate: arrivalDate.value,
+              arrivalTime: arrivalTime.value,
+              departureDate: departureDate.value,
+              departureTime: departureTime.value,
+              travelers,
+              styles
             })
           });
           const result = await response.json();
@@ -338,7 +483,6 @@
         await navigator.clipboard.writeText(document.querySelector("#shareUrl").textContent);
         event.currentTarget.textContent = "Link copied";
       });
-
       document.querySelector("#printButton").addEventListener("click", () => window.print());
 
       document.querySelector("#saveButton").addEventListener("click", () => {
@@ -358,14 +502,22 @@
         context.strokeRect(55, 55, 1290, 790);
         context.fillStyle = "#b8c8ff";
         context.font = "700 28px Arial";
-        context.fillText("TRAVEL ADVENTURE", 110, 150);
+        context.fillText("TRAVEL ADVENTURE", 110, 145);
         context.fillStyle = "#ffffff";
         context.font = "700 82px Arial";
-        context.fillText(activeQuest.name.slice(0, 26), 110, 330);
-        context.font = "400 38px Arial";
-        context.fillText(`Adventure date: ${readableDate(activeQuest.date)}`, 110, 420);
-        context.font = "700 52px Arial";
-        context.fillText(`${document.querySelector("#days").textContent} days to go`, 110, 570);
+        context.fillText(activeQuest.name.slice(0, 26), 110, 315);
+        context.font = "400 34px Arial";
+        const dateLine = activeQuest.arrivalDate
+          ? `${readableDateTime(activeQuest.arrivalDate, activeQuest.arrivalTime)} — ${readableDateTime(activeQuest.departureDate, activeQuest.departureTime)}`
+          : `Adventure date: ${activeQuest.date}`;
+        context.fillText(dateLine, 110, 405);
+        if (activeQuest.numberDays) {
+          context.font = "700 44px Arial";
+          context.fillText(`${activeQuest.numberDays} days in Santorini · ${activeQuest.travelers} travelers`, 110, 505);
+          context.font = "400 25px Arial";
+          context.fillStyle = "#dbe4ff";
+          context.fillText(activeQuest.styles.slice(0, 4).join(" · "), 110, 580);
+        }
         context.font = "400 26px Arial";
         context.fillStyle = "#dbe4ff";
         context.fillText("Powered by Check2Go", 110, 770);
