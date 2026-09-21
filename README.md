@@ -1,19 +1,31 @@
 # Santorini Quest
 
-Santorini Quest is a web app for creating printable quests, exporting them as images, and sharing countdown pages lasting up to three months.
+Santorini Quest lets visitors create a personalized quest, share its live countdown, print it, or save it as an image.
+
+## Current features
+
+- Quest name and participant name input
+- Adventure date selection, limited to three months
+- Shareable countdown page
+- Print-friendly quest layout
+- PNG image export
+- Automatic expiration after the selected date
+- Check2Go attribution and website link
 
 ## Production architecture
 
-- **Amazon S3** stores the compiled website privately.
-- **Amazon CloudFront** serves the site globally over HTTPS.
+- **Amazon S3** stores the website privately.
+- **Amazon CloudFront** serves it globally over HTTPS.
 - **Amazon Route 53** manages `santorini.quest` and `www.santorini.quest`.
 - **AWS Certificate Manager** provides the TLS certificate.
-- **GitHub Actions** deploys `site/` from the `main` branch using AWS OIDC. No long-lived AWS keys are stored in GitHub.
+- **API Gateway + Lambda** validate, create, and retrieve quests.
+- **DynamoDB** stores quest records and automatically removes them using TTL.
+- **GitHub Actions** deploys `site/` from `main` using AWS OIDC. No permanent AWS credentials are stored in GitHub.
 
-The first version is a lightweight placeholder. The quest editor and countdown backend will be added as the product is developed.
+Expired quests are rejected immediately by the API. DynamoDB TTL then removes their stored records automatically.
 
 ## Deployment
 
-Every push to `main` deploys the contents of `site/` to production and invalidates the CloudFront cache. The workflow can also be run manually from the Actions tab.
+Every change under `site/` pushed to `main` deploys to production and refreshes CloudFront.
 
-Production URL: https://santorini.quest
+Production: https://santorini.quest
