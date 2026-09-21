@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Create, print, save, and share a personal Santorini quest." />
-    <title>Santorini Quest</title>
+    <meta name="description" content="Create, print, save, and share a personalized Travel Adventure." />
+    <title>Travel Adventure</title>
     <style>
       :root {
         color-scheme: light;
@@ -134,11 +134,11 @@
       <nav class="nav shell" aria-label="Main navigation">
         <a class="brand" href="/">
           <span class="brand-mark">S</span>
-          <span>Santorini Quest</span>
+          <span>Travel Adventure</span>
         </a>
         <div class="nav-links">
           <a href="#create">How it works</a>
-          <a class="nav-cta" href="#create">Create your quest</a>
+          <a class="nav-cta" href="#create">Create your Travel Adventure</a>
         </div>
       </nav>
     </header>
@@ -148,9 +148,9 @@
         <div class="hero-grid shell">
           <div>
             <p class="kicker">A personal adventure, made by you</p>
-            <h1>Turn anticipation into a quest.</h1>
-            <p class="hero-copy">Create a beautiful personal quest, print it, save it as an image, and share a live countdown to the big day.</p>
-            <a class="button" href="#create">Create Your Own Quest</a>
+            <h1>Travel Adventure</h1>
+            <p class="hero-copy">Create a beautiful, personalized travel adventure, print it, save it as an image, and share a live countdown to the big day.</p>
+            <a class="button" href="#create">Create Your Own Travel Adventure</a>
           </div>
           <div class="hero-card" aria-hidden="true">
             <div class="hero-card-inner">
@@ -169,7 +169,7 @@
         <div class="shell">
           <div class="section-heading">
             <p class="kicker">Make it personal</p>
-            <h2>Create Your Own Quest</h2>
+            <h2>Create Your Own Travel Adventure</h2>
             <p>Enter the participant’s name and choose the day of the adventure. The shared page remains active through that date and is then removed automatically.</p>
           </div>
           <div class="create-grid">
@@ -178,13 +178,13 @@
               <div class="steps">
                 <div class="step"><span class="step-number">1</span><p>Add the participant’s first and last name.</p></div>
                 <div class="step"><span class="step-number">2</span><p>Choose a date up to three months from today.</p></div>
-                <div class="step"><span class="step-number">3</span><p>Share, print, or save the generated quest as an image.</p></div>
+                <div class="step"><span class="step-number">3</span><p>Share, print, or save the generated Travel Adventure as an image.</p></div>
               </div>
             </aside>
             <form class="form-card" id="questForm">
-              <h3>Quest details</h3>
+              <h3>Travel Adventure Details</h3>
               <div class="field">
-                <label for="questName">Quest name</label>
+                <label for="questName">Travel Adventure Name</label>
                 <input id="questName" name="name" type="text" maxlength="100" autocomplete="name" placeholder="For example, Alex Morgan" required />
               </div>
               <div class="field">
@@ -192,7 +192,7 @@
                 <input id="questDate" name="date" type="date" required />
                 <p class="hint">Select any date from today through the next three months.</p>
               </div>
-              <button class="button" type="submit">Generate my quest</button>
+              <button class="button" type="submit">Generate My Travel Adventure</button>
               <p class="message" id="formMessage" role="status"></p>
             </form>
           </div>
@@ -217,12 +217,12 @@
             </div>
           </article>
           <aside class="quest-actions">
-            <h3>Your quest is ready</h3>
+            <h3>Your Travel Adventure is ready</h3>
             <p>Use the link below to share this countdown. It remains available through the selected date.</p>
             <div class="share-url" id="shareUrl"></div>
             <button class="button" id="copyButton" type="button">Copy share link</button>
-            <button class="button secondary" id="printButton" type="button">Print quest</button>
-            <button class="button secondary" id="saveButton" type="button">Save as image</button>
+            <button class="button secondary" id="printButton" type="button">Print Travel Adventure</button>
+            <button class="button secondary" id="saveButton" type="button">Save Travel Adventure as Image</button>
 
           </aside>
         </div>
@@ -260,16 +260,28 @@
       dateInput.max = toDateValue(maximumDate);
       dateInput.value = toDateValue(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7));
 
+      const humanizeApiMessage = (message = "") => {
+        const messages = {
+          "Quest name must contain 1 to 100 characters.": "Travel Adventure name must contain 1 to 100 characters.",
+          "The quest date cannot be in the past.": "The adventure date cannot be in the past.",
+          "The quest date must be within three months.": "The adventure date must be within three months.",
+          "Could not create a unique quest. Please retry.": "Could not create a unique Travel Adventure. Please retry.",
+          "Quest not found.": "Travel Adventure not found.",
+          "This quest has expired.": "This Travel Adventure has expired."
+        };
+        return messages[message] || message;
+      };
+
       const readableDate = (dateText) => new Intl.DateTimeFormat("en", {
         dateStyle: "long",
         timeZone: "UTC"
       }).format(new Date(`${dateText}T12:00:00Z`));
 
-      const showExpired = (message = "This quest has reached its destination and is no longer available.") => {
+      const showExpired = (message = "This Travel Adventure has reached its destination and is no longer available.") => {
         clearInterval(countdownTimer);
         homeView.hidden = true;
         questView.classList.add("visible");
-        document.querySelector("#questContent").innerHTML = `<div class="expired"><h2>Quest complete</h2><p>${message}</p><a class="button" href="/">Create a new quest</a></div>`;
+        document.querySelector("#questContent").innerHTML = `<div class="expired"><h2>Travel Adventure complete</h2><p>${message}</p><a class="button" href="/">Create a New Travel Adventure</a></div>`;
       };
 
       const updateCountdown = () => {
@@ -299,7 +311,7 @@
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        formMessage.textContent = "Creating your quest...";
+        formMessage.textContent = "Creating your Travel Adventure...";
         const submitButton = form.querySelector("button[type='submit']");
         submitButton.disabled = true;
         try {
@@ -312,7 +324,7 @@
             })
           });
           const result = await response.json();
-          if (!response.ok) throw new Error(result.message || "Could not create the quest.");
+          if (!response.ok) throw new Error(humanizeApiMessage(result.message) || "Could not create the Travel Adventure.");
           history.replaceState({}, "", `/?quest=${result.quest.id}`);
           displayQuest(result.quest, result.url);
         } catch (error) {
@@ -346,7 +358,7 @@
         context.strokeRect(55, 55, 1290, 790);
         context.fillStyle = "#b8c8ff";
         context.font = "700 28px Arial";
-        context.fillText("SANTORINI QUEST", 110, 150);
+        context.fillText("TRAVEL ADVENTURE", 110, 150);
         context.fillStyle = "#ffffff";
         context.font = "700 82px Arial";
         context.fillText(activeQuest.name.slice(0, 26), 110, 330);
@@ -358,7 +370,7 @@
         context.fillStyle = "#dbe4ff";
         context.fillText("Powered by Check2Go", 110, 770);
         const link = document.createElement("a");
-        link.download = `santorini-quest-${activeQuest.id}.png`;
+        link.download = `travel-adventure-${activeQuest.id}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
       });
@@ -368,7 +380,7 @@
         fetch(`${API_URL}/quests/${encodeURIComponent(questId)}`)
           .then(async (response) => {
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message || "Quest not found.");
+            if (!response.ok) throw new Error(humanizeApiMessage(result.message) || "Travel Adventure not found.");
             displayQuest(result.quest, window.location.href);
           })
           .catch((error) => showExpired(error.message));
