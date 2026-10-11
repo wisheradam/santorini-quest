@@ -11,6 +11,7 @@
     <meta property="og:url" content="https://santorini.quest/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/planner.css" />
     <title>Travel Adventure</title>
     <style>
       :root {
@@ -171,6 +172,11 @@
         </a>
         <div class="nav-links">
           <a href="#create">How it works</a>
+          <select class="language-select" id="languageSelect" aria-label="Language">
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="he">עברית</option>
+          </select>
           <a class="nav-cta" href="#create">Create your Travel Adventure</a>
         </div>
       </nav>
@@ -305,8 +311,63 @@
 
           </aside>
         </div>
+        <section class="planner-shell" id="planner" hidden aria-label="Travel Adventure planner">
+          <header class="planner-topbar">
+            <div>
+              <p class="planner-eyebrow" id="plannerEyebrow">Santorini itinerary</p>
+              <h2 id="plannerTitle">Daily Timeline Planner</h2>
+              <p class="trip-progress-copy" id="tripProgressCopy"></p>
+              <div class="trip-progress-track" aria-hidden="true"><div class="trip-progress-fill" id="tripProgressFill"></div></div>
+            </div>
+            <div class="planner-actions">
+              <button class="planner-action primary" id="autoPlanButton" type="button">Auto-Plan My Adventure</button>
+              <button class="planner-action" id="overviewButton" type="button" aria-pressed="false">Multi-day overview</button>
+              <button class="planner-action" id="editTripButton" type="button">Edit trip dates</button>
+            </div>
+          </header>
+          <div class="day-tabs-wrap"><div class="day-tabs" id="dayTabs" role="tablist" aria-label="Travel days"></div></div>
+          <div class="planner-layout" id="plannerLayout">
+            <section class="timeline-panel">
+              <header class="panel-heading"><div><h3 id="timelineTitle"></h3><p id="localTimeLabel">Santorini local time</p></div><span class="day-window" id="dayWindow"></span></header>
+              <div class="timeline-list" id="timelineList" role="list"></div>
+            </section>
+            <aside class="unscheduled-panel">
+              <header class="panel-heading"><div><h3 id="unscheduledTitle">Unscheduled Adventures</h3><p id="unscheduledHelp"></p></div><button class="panel-toggle" id="toggleUnscheduled" type="button" aria-expanded="true">Hide</button></header>
+              <div class="unscheduled-list" id="unscheduledList"></div>
+              <div class="catalog-actions"><button class="restore-button" id="restoreRemoved" type="button"></button></div>
+            </aside>
+          </div>
+          <div class="overview-grid" id="overviewGrid" hidden></div>
+          <div class="planner-toast" id="plannerToast" role="status" aria-live="polite"></div>
+        </section>
       </div>
     </section>
+
+    <dialog class="planner-dialog" id="activityDialog">
+      <div class="dialog-body">
+        <h3>Edit activity</h3>
+        <div class="dialog-grid">
+          <div class="field"><label id="dialogTimeLabel" for="activityStart">Start time</label><input id="activityStart" type="time" required /></div>
+          <div class="field"><label id="dialogDurationLabel" for="activityDuration">Duration</label><input id="activityDuration" type="number" min="15" max="720" step="15" required /></div>
+        </div>
+        <div class="field"><label id="dialogMoveLabel" for="activityDestination">Move to Day</label><select id="activityDestination"></select></div>
+        <div class="dialog-actions"><button class="dialog-danger" id="dialogRemove" type="button">Remove</button><button id="dialogCancel" type="button">Cancel</button><button class="dialog-primary" id="dialogSave" type="button">Save changes</button></div>
+      </div>
+    </dialog>
+
+    <dialog class="planner-dialog" id="tripDialog">
+      <div class="dialog-body">
+        <h3>Trip dates and times</h3>
+        <div class="dialog-grid">
+          <div class="field"><label id="tripArrivalDateLabel" for="TripArrivalDate">Arrival date</label><input id="TripArrivalDate" type="date" required /></div>
+          <div class="field"><label id="tripArrivalTimeLabel" for="TripArrivalTime">Arrival time</label><input id="TripArrivalTime" type="time" required /></div>
+          <div class="field"><label id="tripDepartureDateLabel" for="TripDepartureDate">Departure date</label><input id="TripDepartureDate" type="date" required /></div>
+          <div class="field"><label id="tripDepartureTimeLabel" for="TripDepartureTime">Departure time</label><input id="TripDepartureTime" type="time" required /></div>
+        </div>
+        <p class="message" id="tripDialogMessage" role="status"></p>
+        <div class="dialog-actions"><button id="tripCancel" type="button">Cancel</button><button class="dialog-primary" id="tripSave" type="button">Save changes</button></div>
+      </div>
+    </dialog>
 
     <footer class="powered">
       <span>Powered by</span>
@@ -427,6 +488,7 @@
 
       const displayQuest = (quest, url = window.location.href) => {
         activeQuest = quest;
+        window.santoriniQuest = quest;
         homeView.hidden = true;
         questView.classList.add("visible");
         document.querySelector("#displayName").textContent = quest.name;
@@ -442,6 +504,7 @@
         document.querySelector("#shareUrl").textContent = url;
         updateCountdown();
         countdownTimer = window.setInterval(updateCountdown, 1000);
+        window.dispatchEvent(new CustomEvent("santorini:quest", { detail: quest }));
         window.scrollTo({ top: 0 });
       };
 
@@ -493,6 +556,10 @@
       document.querySelector("#printButton").addEventListener("click", () => window.print());
 
       document.querySelector("#saveButton").addEventListener("click", () => {
+        if (window.plannerHasData?.()) {
+          window.exportPlannerImage();
+          return;
+        }
         if (!activeQuest) return;
         const canvas = document.createElement("canvas");
         canvas.width = 1400;
@@ -545,5 +612,6 @@
           .catch((error) => showExpired(error.message));
       }
     </script>
+    <script src="/planner.js"></script>
   </body>
 </html>
