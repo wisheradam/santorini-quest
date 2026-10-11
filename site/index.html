@@ -124,6 +124,17 @@
       .quest-actions h3 { margin: 0 0 8px; color: var(--navy); font-size: 28px; }
       .quest-actions p { margin: 0 0 14px; color: var(--muted); line-height: 1.6; }
       .share-url { width: 100%; min-height: 48px; padding: 12px; overflow-wrap: anywhere; border-radius: 10px; background: var(--sky); color: var(--navy); font-size: 13px; }
+      .email-card { margin-top: 10px; padding-top: 22px; border-top: 1px solid #e3e9f1; }
+      .email-card h4 { margin: 0 0 8px; color: var(--navy); font-size: 22px; }
+      .email-card > p { margin: 0 0 16px; font-size: 14px; }
+      .email-field { display: grid; gap: 8px; }
+      .consent-row { display: grid; grid-template-columns: 22px 1fr; gap: 11px; align-items: start; margin: 15px 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+      .consent-row input { width: 22px; min-height: 22px; margin: 1px 0 0; accent-color: var(--blue); }
+      .consent-row a, .email-legal a { color: var(--blue); }
+      .email-legal { margin: 10px 0 0 !important; font-size: 12px !important; }
+      .email-status { min-height: 22px; margin: 12px 0 0 !important; font-size: 14px; font-weight: 700; }
+      .email-status.success { color: #14734a; }
+      .email-status.error { color: #b42318; }
 
       .powered { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 32px 16px 42px; color: var(--muted); background: #fff; }
       .powered a { display: inline-flex; align-items: center; gap: 9px; color: var(--navy); font-weight: 850; text-decoration: none; }
@@ -221,9 +232,9 @@
               </div>
             </aside>
             <form class="form-card" id="questForm">
-              <h3>Quest Details</h3>
+              <h3>Travel Adventure Details</h3>
               <div class="field">
-                <label for="questName">Quest name</label>
+                <label for="questName">Travel Adventure name</label>
                 <input id="questName" name="name" type="text" maxlength="100" autocomplete="name" placeholder="Alex Morgan" required />
                 <p class="hint">First and last name of the main participant.</p>
               </div>
@@ -277,7 +288,7 @@
                   <button class="style-chip" type="button" aria-pressed="false" data-style="Local & Authentic"><strong>Local &amp; Authentic</strong><span>Traditional villages, local businesses, and less-touristy places.</span></button>
                 </div>
               </fieldset>
-              <button class="button" type="submit">Generate my quest</button>
+              <button class="button" type="submit">Generate My Travel Adventure</button>
               <p class="message" id="formMessage" role="status" aria-live="polite"></p>
             </form>
           </div>
@@ -308,7 +319,23 @@
             <button class="button" id="copyButton" type="button">Copy share link</button>
             <button class="button secondary" id="printButton" type="button">Print Travel Adventure</button>
             <button class="button secondary" id="saveButton" type="button">Save Travel Adventure as Image</button>
-
+            <!-- Prepared for activation after Turnstile, SES DKIM, and SES production access are verified. -->
+            <form class="email-card" id="emailAdventureForm" hidden aria-hidden="true" novalidate>
+              <h4 id="emailHeading">Get Your Travel Adventure</h4>
+              <p id="emailDescription">Enter your email address and we’ll send you a link to your personalized Santorini itinerary.</p>
+              <div class="email-field">
+                <label for="adventureEmail" id="emailLabel">Your email address</label>
+                <input id="adventureEmail" name="email" type="email" maxlength="254" inputmode="email" autocomplete="email" placeholder="name@example.com" required />
+              </div>
+              <label class="consent-row" for="marketingConsent">
+                <input id="marketingConsent" name="marketingConsent" type="checkbox" />
+                <span id="consentText">I agree to receive travel news, special offers, promotions, and updates about new travel experiences and partner offers by email.</span>
+              </label>
+              <div id="turnstileContainer" aria-live="polite"></div>
+              <button class="button" id="sendAdventureButton" type="submit">Send My Travel Adventure</button>
+              <p class="email-legal" id="emailLegal">Subscription is optional. You can unsubscribe at any time. See our <a href="/privacy.html">Privacy Policy</a> and <a href="/subscription-terms.html">Subscription Terms</a>.</p>
+              <p class="email-status" id="emailStatus" role="status" aria-live="polite"></p>
+            </form>
           </aside>
         </div>
         <section class="planner-shell" id="planner" hidden aria-label="Travel Adventure planner">
@@ -613,5 +640,6 @@
       }
     </script>
     <script src="/planner.js"></script>
+    <script src="/email.js"></script>
   </body>
 </html>

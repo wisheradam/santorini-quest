@@ -140,7 +140,7 @@
   }
 
   function loadState(q) {
-    try { return normalizeState(JSON.parse(localStorage.getItem(tripKey(q))),q); }
+    try { return normalizeState(JSON.parse(localStorage.getItem(tripKey(q))) || q.planner,q); }
     catch { return newState(q); }
   }
 
